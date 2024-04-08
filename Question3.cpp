@@ -2,7 +2,6 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
-#include <vector>
 
 using namespace std;
 
@@ -12,7 +11,6 @@ class AirTrafficController {
 private:
     int trafficPatternCount = 0;
     bool asleep = true;
-    mutex sleepMutex;
 
 public:
     void wakeUp() {
@@ -38,14 +36,6 @@ public:
     void decrementTrafficPatternCount() {
         trafficPatternCount--;
     }
-
-    void lockSleepMutex() {
-        sleepMutex.lock();
-    }
-
-    void unlockSleepMutex() {
-        sleepMutex.unlock();
-    }
 };
 
 class Aircraft {
@@ -57,7 +47,7 @@ public:
     Aircraft(int _id, AirTrafficController& _atc) : id(_id), atc(_atc) {}
 
     void enterTrafficPattern() {
-        atc.lockSleepMutex();
+        mtx.lock();
         if (atc.isAsleep()) {
             atc.wakeUp();
             cout << "Aircraft " << id << " wakes up ATC and enters the traffic pattern.\n";
@@ -69,52 +59,40 @@ public:
         else {
             cout << "Aircraft " << id << " traffic pattern is full. Diverting to other airports.\n";
         }
-        atc.unlockSleepMutex();
+        mtx.unlock();
     }
 
     void exitTrafficPattern() {
-        atc.lockSleepMutex();
+        mtx.lock();
         atc.decrementTrafficPatternCount();
         if (atc.getTrafficPatternCount() == 0) {
             atc.sleep();
             cout << "ATC falls asleep.\n";
         }
-        atc.unlockSleepMutex();
+        mtx.unlock();
     }
 };
 
 int main() {
     AirTrafficController atc;
 
-    vector<thread> threads;
-
     // Create ten aircraft
-    vector<Aircraft> aircrafts;
-    for (int i = 1; i <= 10; ++i) {
-        aircrafts.emplace_back(i, atc);
-    }
+    Aircraft aircraft[10] = { Aircraft(1, atc), Aircraft(2, atc), Aircraft(3, atc), Aircraft(4, atc), Aircraft(5, atc),
+                              Aircraft(6, atc), Aircraft(7, atc), Aircraft(8, atc), Aircraft(9, atc), Aircraft(10, atc) };
 
     // Simulate incoming aircraft
     for (int i = 0; i < 10; ++i) {
-        threads.emplace_back(&Aircraft::enterTrafficPattern, &aircrafts[i]);
         // Let's simulate the landing process (1 second)
         this_thread::sleep_for(chrono::seconds(1));
-    }
-
-    for (auto& t : threads) {
+        thread t(&Aircraft::enterTrafficPattern, &aircraft[i]);
         t.join();
     }
 
-    threads.clear();
-
     // Simulate exiting aircraft
     for (int i = 0; i < 10; ++i) {
-        threads.emplace_back(&Aircraft::exitTrafficPattern, &aircrafts[i]);
         // Let's simulate the exiting process (1 second)
         this_thread::sleep_for(chrono::seconds(1));
-    }
-
-    for (auto& t : threads) {
+        thread t(&Aircraft::exitTrafficPattern, &aircraft[i]);
         t.join();
     }
 
