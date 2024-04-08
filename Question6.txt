@@ -1,0 +1,20 @@
+Bobby Craig, Homework 2, Question 6
+
+In creation of the program, there are several issues that could come about.
+First of all, an issue can arise when multiple threads access shared data
+which could lead to unpredictable behavior. For example, if several aircraft
+check the ATC and attempt to wake it up at the same time. There could also be
+an issue with deadlocks. If multiple threads are waitng for each other to
+release resources they need, the code could fail. An example of this would be
+if one aircraft locks the sleep state of ATC and then tries to lock it again
+while another aircraft thread holds the lock (a comparison would be locking
+comparators or repeaters in Minecraft). There is also an issue in if the program
+takes a while to finish. If it does, it could impact the entire performance of
+the simulation, leading to several delays.
+
+Solutions to these would be using Mutexes or locks to access several resources
+to prevent aircraft from accessing it at the same time, and then to resolve the
+issue of deadlocks this creates, we would avoid nested locking and acquire locks
+in the same order. We use lockSleepMutex and unlockSleepMutex to do this. To prevent
+degradation of the program, we would optimize where possible or implement Parallel 
+Processing.

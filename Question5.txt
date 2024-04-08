@@ -1,0 +1,13 @@
+Bobby Craig, Homework 2, Question 5
+
+If a robot (let's say robot 1), is immediately assigned a new task after
+finishing the first one, there might end up being an unequal distribution
+of the work needed to be done by the robots. What this could mean is the 
+deterioration of the robot doing most of the work, meaning replacements would
+be frequent. Furthermore, the code has a higher likelihood of breaking if we only
+give one of the robots something to do, which could result in inefficiency with our
+robots.
+
+To fix this, I would introduce a cooldown period, something like a timer, to give time to
+allow the robots to reset and recuperate. The timing of such would be dependent on certain factors
+such as whether the robot had a hard task or not, how long it took to complete said task, and others.
